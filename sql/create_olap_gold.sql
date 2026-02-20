@@ -81,7 +81,9 @@ CREATE VIEW olap_gold.vw_top_10_products_profit AS
 SELECT
     brand, description, size, vendor_name, total_revenue, total_cogs,
     gross_profit, gross_margin_pct, total_qty_sold
-FROM olap_gold.product_pnl WHERE gross_profit > 0
+FROM olap_gold.product_pnl
+WHERE gross_profit > 0
+AND total_qty_sold >= 100 -- Arbitrary (exclude low-volume products)
 ORDER BY gross_profit DESC LIMIT 10;
 
 DROP VIEW IF EXISTS olap_gold.vw_top_10_products_margin;
@@ -89,7 +91,9 @@ CREATE VIEW olap_gold.vw_top_10_products_margin AS
 SELECT
     brand, description, size, vendor_name, total_revenue, total_cogs,
     gross_profit, gross_margin_pct, total_qty_sold
-FROM olap_gold.product_pnl WHERE total_qty_sold >= 10 -- Arbitrary
+FROM olap_gold.product_pnl
+WHERE gross_margin_pct > 0
+AND total_qty_sold >= 100 -- Arbitrary (exclude low-volume products)
 ORDER BY gross_margin_pct DESC LIMIT 10;
 
 DROP VIEW IF EXISTS olap_gold.vw_top_10_brands_profit;
@@ -97,7 +101,9 @@ CREATE VIEW olap_gold.vw_top_10_brands_profit AS
 SELECT
     brand, vendor_name, total_revenue, total_cogs, gross_profit,
     gross_margin_pct, total_qty_sold, distinct_skus
-FROM olap_gold.brand_pnl WHERE gross_profit > 0
+FROM olap_gold.brand_pnl
+WHERE gross_profit > 0
+AND total_qty_sold >= 200 -- Arbitrary (exclude low-volume brands)
 ORDER BY gross_profit DESC LIMIT 10;
 
 DROP VIEW IF EXISTS olap_gold.vw_top_10_brands_margin;
@@ -105,7 +111,9 @@ CREATE VIEW olap_gold.vw_top_10_brands_margin AS
 SELECT
     brand, vendor_name, total_revenue, total_cogs, gross_profit,
     gross_margin_pct, total_qty_sold, distinct_skus
-FROM olap_gold.brand_pnl WHERE total_qty_sold >= 50 -- Arbitrary
+FROM olap_gold.brand_pnl
+WHERE gross_margin_pct > 0
+AND total_qty_sold >= 200 -- Arbitrary (exclude low-volume brands)
 ORDER BY gross_margin_pct DESC LIMIT 10;
 
 DROP VIEW IF EXISTS olap_gold.vw_drop_candidates_products;
@@ -113,7 +121,9 @@ CREATE VIEW olap_gold.vw_drop_candidates_products AS
 SELECT
     brand, description, size, vendor_name, total_revenue, total_cogs,
     gross_profit, gross_margin_pct, total_qty_sold
-FROM olap_gold.product_pnl WHERE gross_profit < 0
+FROM olap_gold.product_pnl
+WHERE gross_profit < 0
+AND total_qty_sold >= 100 -- Arbitrary (exclude low-volume products to avoid noise)
 ORDER BY gross_profit ASC;
 
 DROP VIEW IF EXISTS olap_gold.vw_drop_candidates_brands;
@@ -121,5 +131,7 @@ CREATE VIEW olap_gold.vw_drop_candidates_brands AS
 SELECT
     brand, vendor_name, total_revenue, total_cogs, gross_profit,
     gross_margin_pct, total_qty_sold, distinct_skus
-FROM olap_gold.brand_pnl WHERE gross_profit < 0
+FROM olap_gold.brand_pnl
+WHERE gross_profit < 0
+AND total_qty_sold >= 200 -- Arbitrary (exclude low-volume brands to avoid noise)
 ORDER BY gross_profit ASC;

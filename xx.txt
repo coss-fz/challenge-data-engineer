@@ -1,0 +1,36 @@
+Challenge: Data Engineer: Annie’s Magic Numbers
+
+Discovering hard to find truths
+
+You are helping Annie, the owner of a large liquor and spirit distributor in the US. She wants to understand her profits and margins. The examples with the CSV file are provided.
+
+Task at hand
+
+1. Efficiently ingest the relevant csv files into a suitable database (Postgres and PgAdmin with Docker Compose).
+2. Transform the data to calculate profits ($) and margins (%).
+3. Create a report for Annie outlining:
+  1. Top 10 products with highest based on profit ($) and margin (%).
+  2. Top 10 brands with highest based on profit ($) and margin (%).
+  3. Which brands / products should she drop as a wholesales because they are loosing money.
+
+
+- The data ingested goes to the 'olap_bronze' schema, the data cleaned and related in star schema gos to 'olap_silver', the final data processed for the reporting goes to the 'olap_gold' schema
+- Create the sql files for the tables creation / queries for processing
+- Dont use OOP, use functional paradigm for the processing
+- Use tests with pytest
+- For the report, use matplotlib or seaborn
+
+- Create a requirements.txt file for the venv
+- Create a README file explaining everything donde and how tto repoduce everything
+- Add a section on how to reproduce the report in Power BI
+
+------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
+
+FALTA:
+
+  - Tablero Power BI
+  - Informe (excel automático a 'data/output')
+  - Testing
+  - CI/CD (testing / linting)
+  - Error handling (try/except)

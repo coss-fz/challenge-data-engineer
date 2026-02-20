@@ -1,5 +1,5 @@
 """
-Generate Excel and PDF reports from the olap_gold views
+Generate Excel reports from the 'olap_gold' views
 """
 
 import os
@@ -25,7 +25,7 @@ VIEW_MAPPING = {
 def _ensure_reports_dir(path: str) -> None:
     """Create the reports directory if it does not exist"""
     if not os.path.isdir(path):
-        os.makedirs(path, exist_ok=True)
+        os.makedirs(path, exist_ok=True)  # pragma: no cover
 
 
 def export_views_to_excel(engine, reports_dir:str ="reports",

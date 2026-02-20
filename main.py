@@ -5,6 +5,7 @@ Full pipeline entry point
 import argparse
 import os
 import sys
+import logging
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -13,22 +14,55 @@ from src.ingest import ingest_all # pylint: disable=wrong-import-position
 from src.transform import run_silver, run_gold # pylint: disable=wrong-import-position
 
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
 
 
 def step_ingest(data_dir:str) -> None:
     """Ingest CSV files from the given directory into the olap_bronze schema"""
-    engine = get_engine()
-    conn = get_psycopg2_connection()
-    counts = ingest_all(conn, data_dir, engine)
-    print(f"\nIngested tables: {counts}")
+    try:
+        engine = get_engine()
+    except RuntimeError as e:
+        logger.error("Database engine creation failed: %s", e, exc_info=True)
+        raise
+
+    try:
+        conn = get_psycopg2_connection()
+    except RuntimeError as e:
+        logger.error("Database connection failed: %s", e, exc_info=True)
+        raise
+
+    try:
+        ingest_all(conn, data_dir, engine)
+        logger.info("Ingestion step completed successfully")
+    except RuntimeError as e:
+        logger.error("Ingestion failed: %s", e, exc_info=True)
+        raise
+    finally:
+        conn.close()
+        engine.dispose()
 
 
 def step_transform() -> None:
     """Run Silver and Gold transformation steps using a PostgreSQL connection"""
-    conn = get_psycopg2_connection()
+    try:
+        conn = get_psycopg2_connection()
+    except RuntimeError as e:
+        logger.error("Database connection failed: %s", e, exc_info=True)
+        raise
+
     try:
         run_silver(conn)
         run_gold(conn)
+        logger.info("Transform step completed successfully")
+    except RuntimeError as e:
+        logger.error("Transformation failed: %s", e, exc_info=True)
+        raise
     finally:
         conn.close()
 
@@ -42,15 +76,23 @@ def main() -> None:
                         help="Directory containing the CSV files")
     args = parser.parse_args()
 
-    print("\nThe pipeline has started!")
+    logger.info("Pipeline started with step='%s', data_dir='%s'", args.step, args.data_dir)
 
-    if args.step in ("ingest", "all"):
-        step_ingest(args.data_dir)
+    try:
+        if args.step in ("ingest", "all"):
+            logger.info("Starting ingestion step (Bronze layer)")
+            step_ingest(args.data_dir)
+    except RuntimeError:
+        sys.exit(1)
 
-    if args.step in ("transform", "all"):
-        step_transform()
+    try:
+        if args.step in ("transform", "all"):
+            logger.info("Starting transformation step")
+            step_transform()
+    except RuntimeError:
+        sys.exit(1)
 
-    print("\nThe pipeline finished succesfully!")
+    logger.info("Pipeline completed successfully")
 
 
 if __name__ == "__main__":

@@ -70,7 +70,6 @@ def get_psycopg2_connection():
 
 def execute_sql_file(conn, filepath:str) -> None:
     """Execute a SQL file against the given psycopg2 connection"""
-
     try:
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"SQL file not found: {filepath}")

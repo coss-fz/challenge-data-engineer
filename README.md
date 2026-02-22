@@ -28,7 +28,7 @@ This project ingests CSV data into PostgreSQL, transforms it through a multi-lay
 - Automated CSV ingestion into PostgreSQL using Docker Compose
 - Multi-level data transformation pipeline
 - Comprehensive test suite with pytest
-- Excel report generation with visualizations using matplotlib
+- Automatic Excel report generation
 
 
 

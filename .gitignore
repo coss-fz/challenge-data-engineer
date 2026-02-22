@@ -59,7 +59,7 @@ logs/
 
 # Data
 data/
-reports/
+reports/dashboard.pbix
 
 # Docker
 docker-compose.override.yml
